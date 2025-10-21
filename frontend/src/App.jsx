@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import './App.css'
-import OCRUpload from './components/OCRUpload'
+import CoverLetterGenerator from './components/CoverLetterGenerator'
 
 function App() {
   const [count, setCount] = useState(0)
 
   return (
     <>
-    <OCRUpload/>
+     <CoverLetterGenerator/>
     </>
   )
 }
