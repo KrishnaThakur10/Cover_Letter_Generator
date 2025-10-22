@@ -1,28 +1,9 @@
 import express from 'express';
 import { generateCoverLetter } from '../controllers/aiController.js';
+import {getAuthUrl, saveToken, createCoverLetterDoc} from '../controllers/googleDocsController.js'
 
 const router = express.Router();
 
-// GET route for testing in browser
-router.get('/generate-cover-letter', (req, res) => {
-    res.json({ 
-        message: 'Cover Letter Generator API',
-        method: 'POST',
-        endpoint: '/api/resume/generate-cover-letter',
-        requiredFields: {
-            resumeText: 'string',
-            jobTitle: 'string',
-            companyName: 'string',
-            jobDescription: 'string (optional)'
-        },
-        example: {
-            resumeText: "Your resume text here",
-            jobTitle: "Frontend Developer",
-            companyName: "Google",
-            jobDescription: "Job description here"
-        }
-    });
-});
 
 // POST route for generating cover letter
 router.post('/generate-cover-letter',
@@ -37,4 +18,34 @@ router.post('/generate-cover-letter',
     }
 );
 
+
+// get google authrization URL 
+router.get('/auth/google', (req, res) =>{
+    const authUrl = getAuthUrl();
+    res.json({authUrl})
+})
+
+// handle oAuth call back
+router.get('/auth/callback', async (req, res)=>{
+    const {code} = req.query;
+    await saveToken(code)
+    res.send('Authorization successful! You can close this window ')
+})
+
+
+// create google docs
+
+router.post('/create-google-doc', async(req, res)=>{
+    try {
+        const {coverLetter, jobTitle, companyName} = req.body;
+        const docUrl = await createCoverLetterDoc(coverLetter, jobTitle, companyName)
+        res.json({success: true, docUrl})
+    } catch (error) {
+        // Return 401 if authorization is missing
+        if (error.message.includes('Missing OAuth token')) {
+            return res.status(401).json({success:false, error: error.message})
+        }
+        res.status(500).json({success:false, error: error.message})
+    }
+})
 export default router;
