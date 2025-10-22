@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import React from "react";
 import Tesseract from 'tesseract.js'
 import axios from 'axios'
@@ -12,6 +12,8 @@ function CoverLetterGenerator() {
   const [coverLetter, setCoverLetter] = useState("")
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
+  const [authUrl, setAuthUrl] = useState('')
+  const [docUrl, setDocUrl] = useState('')
 
 
   // Getting Text from Image
@@ -22,6 +24,10 @@ function CoverLetterGenerator() {
 
     Tesseract.recognize(URL.createObjectURL(file), 'eng')
     .then(({data: {text}})=>{
+      if(!text || text.trim.length < 50){
+        alert('Could not extract text. Try some clear image.')
+        return
+      }
         setResumeText(text)
         setLoading(false)
         setStep(2)
@@ -31,6 +37,7 @@ function CoverLetterGenerator() {
         setLoading(false)
     })
   };
+
 
   // Generate Cover Letter 
   const GenerateCoverLetter = async () => {
@@ -49,6 +56,46 @@ function CoverLetterGenerator() {
     }
     setLoading(false)
   }
+
+  async function generateWithRetry(prompt, maxRetries = 3) {
+    for(let i=0; i<maxRetries; i++){
+      try {
+        return await GenerateCoverLetter
+      } catch (error) {
+        
+      }
+    }
+  }
+  
+
+  // get auth URL on component 
+  useEffect(() => {
+    axios.get('http://localhost:5000/api/resume/auth/google')
+    .then(res => setAuthUrl(res.data.authUrl))
+  }, [setAuthUrl])
+
+  // create google docs
+  const createGoogleDoc = async () => {
+    setLoading(true)
+    try {
+      const response = await axios.post('http://localhost:5000/api/resume/create-google-doc', {
+        coverLetter,
+        jobTitle, 
+        companyName
+      });
+      setDocUrl(response.data.docUrl)
+    } catch (error) {
+      if(error.response?.status === 401) {
+        alert('Please authrize Google Docs first!')
+        window.open(authUrl,'_blank')
+      }
+      else{
+        alert('Error:', error.message)
+      }
+    }
+    setLoading(false)
+  }
+  
 
   return (
     <div className=" w-screen h-screen">
@@ -88,6 +135,13 @@ function CoverLetterGenerator() {
                     <button className="px-4 md:px-6  mt-3 bg-green-600 hover:bg-green-700 text-white font-medium py-3 rounded-2xl shadow-sm focus:outline-none focus:ring-2 focus:ring-green-300 focus:ring-offset-1 transition-all " onClick={() => navigator.clipboard.writeText(coverLetter)}>Copy to Clipboard</button>
                     <button className="px-4 md:px-6  mt-3 bg-green-600 hover:bg-green-700 text-white font-medium py-3 rounded-2xl shadow-sm focus:outline-none focus:ring-2 focus:ring-green-300 focus:ring-offset-1 transition-all " onClick={() => setStep(1)}>Start Over</button>
                 </div>
+                    <button className="px-4 md:px-6  mt-3 bg-green-600 hover:bg-green-700 text-white font-medium py-3 rounded-2xl shadow-sm focus:outline-none focus:ring-2 focus:ring-green-300 focus:ring-offset-1 transition-all " onClick={createGoogleDoc} disabled={loading}>{loading? 'Creating Doc...': 'Create Google Doc'}</button>
+                    {docUrl && (
+                      <div>
+                        <h3 className="text-sm font-normal">Google doc Created Successfully</h3>
+                        <a href={docUrl} target="_blank" rel="noopener noreferrer">Open in Google Docs</a>
+                      </div>
+                    )}
             </div>
         )}
       </div>
