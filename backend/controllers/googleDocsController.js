@@ -1,18 +1,24 @@
 import { google } from 'googleapis'
 import fs from 'fs'
+import dotenv from 'dotenv'
+
+dotenv.config()
 
 
 const CREDENTIALS_PATH = './credentials.json'
 const TOKEN_PATH = 'token.json'
 
 // load credentials
-const credentials = JSON.parse(fs.readFileSync(CREDENTIALS_PATH));
-const {client_id, client_secret, redirect_uris} = credentials.web;
+// const credentials = JSON.parse(fs.readFileSync(CREDENTIALS_PATH));
+//const {client_id, client_secret, redirect_uris} = credentials.web;
 
 const oAuth2Client  = new google.auth.OAuth2(
-    client_id,
-    client_secret,
-    redirect_uris[0]
+    process.env.CLIENT_ID,
+    process.env.CLIENT_SECRET,
+    process.env.REDIRECT_URIS
+    // client_id,
+    // client_secret,
+    // redirect_uris[0]
 );
 
 // generate auth URL 
@@ -75,8 +81,8 @@ try {
     
     // make document acccessible (anyone with the link can view)
     await drive.permissions.create([
-        fileId: documentId,
-        requestBody: {
+        fileId = documentId,
+        requestBody = {
             role: 'writer',
             type: 'anyone'
         }
