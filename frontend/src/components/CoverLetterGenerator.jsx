@@ -42,13 +42,13 @@ const API_URL = 'https://cover-letter-generator-backend-t1jc.onrender.com'
   };
 
 
-  // Generate Cover Letter 
+  // Generate Cover Letter
   const GenerateCoverLetter = async () => {
     setLoading(true)
     try {
-        const response = await axios.post(`${API_URL}/generate-cover-letter`, {
+        const response = await axios.post(`${API_URL}/api/resume/generate-cover-letter`, {
             resumeText,
-            jobTitle, 
+            jobTitle,
             companyName,
             jobDescription
         });
@@ -71,9 +71,9 @@ const API_URL = 'https://cover-letter-generator-backend-t1jc.onrender.com'
   }
   
 
-  // get auth URL on component 
+  // get auth URL on component
   useEffect(() => {
-    axios.get('http://localhost:5000/api/resume/auth/google')
+    axios.get(`${API_URL}/api/resume/auth/google`)
     .then(res => setAuthUrl(res.data.authUrl))
   }, [setAuthUrl])
 
@@ -81,9 +81,9 @@ const API_URL = 'https://cover-letter-generator-backend-t1jc.onrender.com'
   const createGoogleDoc = async () => {
     setLoading(true)
     try {
-      const response = await axios.post('http://localhost:5000/api/resume/create-google-doc', {
+      const response = await axios.post(`${API_URL}/api/resume/create-google-doc`, {
         coverLetter,
-        jobTitle, 
+        jobTitle,
         companyName
       });
       setDocUrl(response.data.docUrl)
