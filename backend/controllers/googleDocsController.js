@@ -5,17 +5,21 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 
-const CREDENTIALS_PATH = './controllers/credentials.json'
 const TOKEN_PATH = 'token.json'
 
-// load credentials
-const credentials = JSON.parse(fs.readFileSync(CREDENTIALS_PATH, 'utf-8'))
-const {client_id, client_secret, redirect_uris} = credentials.web || credentials.installed
+// load credentials from environment variables
+const client_id = process.env.CLIENT_ID
+const client_secret = process.env.CLIENT_SECRET
+const redirect_uri = process.env.REDIRECT_URIS
+
+if (!client_id || !client_secret || !redirect_uri) {
+    throw new Error('Missing Google OAuth credentials in environment variables')
+}
 
 const oAuth2Client = new google.auth.OAuth2(
     client_id,
     client_secret,
-    redirect_uris[0]
+    redirect_uri
 );
 
 // generate auth URL 

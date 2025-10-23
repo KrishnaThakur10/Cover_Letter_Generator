@@ -24,8 +24,9 @@ function CoverLetterGenerator() {
 
     Tesseract.recognize(URL.createObjectURL(file), 'eng')
     .then(({data: {text}})=>{
-      if(!text || text.trim.length < 50){
+      if(!text ){
         alert('Could not extract text. Try some clear image.')
+        setLoading(false)
         return
       }
         setResumeText(text)
