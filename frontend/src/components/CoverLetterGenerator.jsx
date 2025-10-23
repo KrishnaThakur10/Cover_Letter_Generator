@@ -16,6 +16,8 @@ function CoverLetterGenerator() {
   const [docUrl, setDocUrl] = useState('')
 
 
+  const API_URL = 'https://cover-letter-generator-backend-ec2s.onrender.com';
+
   // Getting Text from Image
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -44,7 +46,7 @@ function CoverLetterGenerator() {
   const GenerateCoverLetter = async () => {
     setLoading(true)
     try {
-        const response = await axios.post('http://localhost:5000/api/resume/generate-cover-letter', {
+        const response = await axios.post(`${API_URL}/generate-cover-letter`, {
             resumeText,
             jobTitle, 
             companyName,
