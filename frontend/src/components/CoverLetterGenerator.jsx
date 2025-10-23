@@ -16,7 +16,7 @@ function CoverLetterGenerator() {
   const [docUrl, setDocUrl] = useState('')
 
 
-  const API_URL = 'https://cover-letter-generator-backend-ec2s.onrender.com';
+const API_URL = 'https://cover-letter-generator-backend-t1jc.onrender.com'
 
   // Getting Text from Image
   const handleImageUpload = (e) => {
