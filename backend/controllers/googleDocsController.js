@@ -95,12 +95,8 @@ async function createCoverLetterDoc(coverLetterText, jobTitle, companyName) {
         return `https://docs.google.com/document/d/${documentId}/edit`
     } catch (error) {
         console.error('Error creating google doc:', error.response?.data || error.message)
-<<<<<<< HEAD
         console.error('Full error stack:', error.stack)
         throw error
-=======
-        throw new Error('Failed to create document')
->>>>>>> f06e3b17011432f7ce15dcb9933988d991f64ae4
     }
 }
 
